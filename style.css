@@ -11,6 +11,10 @@
     appearance: none;
 }
 
+body {
+    padding: 3rem;
+}
+
 h1,h2,h3,h4,h5,h6 {
     font-size: 1rem;
 }
@@ -18,3 +22,22 @@ h1,h2,h3,h4,h5,h6 {
 a:visited {
     color: inherit;
 }
+
+body {
+    display:grid;
+    grid-template-rows: min-content 1fr;
+    grid-template-columns: 1fr 4fr;
+    gap: 2rem;
+}
+
+header {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+button,
+.side-pannel .inbox > li,
+.side-pannel .projects > li {
+    cursor: pointer;
+}
+
