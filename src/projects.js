@@ -1,8 +1,7 @@
 class Project {
-  #todos = [];
+  todos = [];
 
-  constructor(name, id) {
-    this.id = id;
+  constructor(name) {
     this.name = name;
   }
 
@@ -11,32 +10,44 @@ class Project {
   }
 
   removeTodo(todo) {
-    const index = todo.id;
-    this.#todos.splice(index, 1);
-    for (let i = index; i < this.#todos.length; i += 1) {
-      this.#todos[i].id -= 1;
+    if (this.todos.includes(todo)) {
+      const i = this.todos.indexOf(todo);
+      this.todos.splice(i, 1);
     }
   }
 }
 
-const ProjList = (() => {
-  const projects = [];
+const projectList = (() => {
+  const list = [];
+  const inbox = new Project("Inbox");
+  list.push(inbox);
 
-  const addProj = (project) => {
-    projects.push(project);
+  const addProject = (proj) => {
+    if (list.some((e) => e.name.toLowerCase() === proj.name.toLowerCase()))
+      return; // put in DOM
+    list.push(proj);
   };
 
-  const removeProj = (project) => {
-    const index = project.id;
-    projects.splice(index, 1);
-    for (let i = index; i < projects.length; i += 1) {
-      projects[i].id -= 1;
+  const removeProject = (proj) => {
+    if (list.includes(proj)) {
+      const index = list.indexOf(proj);
+      list.splice(index, 1);
     }
   };
 
-  const getLength = () => projects.length;
+  const getProject = (proj) => list.find((el) => el.name === proj);
 
-  return { addProj, removeProj, getLength };
+  const getProjectListNames = () => list.map((project) => project.name);
+
+  // debug
+  const addProjx = (() => {
+    const a = new Project("a");
+    const b = new Project("b");
+    addProject(a);
+    addProject(b);
+  })();
+
+  return { addProject, removeProject, getProject, getProjectListNames };
 })();
 
-export { Project, ProjList };
+export { Project, projectList };

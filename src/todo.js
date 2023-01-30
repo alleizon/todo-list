@@ -3,8 +3,7 @@ export default class Todo {
 
   notes = [];
 
-  constructor(id, title, desc, dueDate, priority) {
-    this.id = id;
+  constructor(title, desc, dueDate, priority) {
     this.title = title;
     this.desc = desc;
     this.dueDate = dueDate;
@@ -17,9 +16,5 @@ export default class Todo {
 
   markCompleted() {
     this.completed = !this.completed;
-  }
-
-  lowerIndex() {
-    this.id -= 1;
   }
 }
