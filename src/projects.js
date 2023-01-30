@@ -20,11 +20,13 @@ class Project {
 const projectList = (() => {
   const list = [];
   const inbox = new Project("Inbox");
+  let curProj = inbox;
   list.push(inbox);
 
   const addProject = (proj) => {
     if (list.some((e) => e.name.toLowerCase() === proj.name.toLowerCase()))
       return; // put in DOM
+
     list.push(proj);
   };
 
@@ -36,6 +38,7 @@ const projectList = (() => {
   };
 
   const getProject = (proj) => list.find((el) => el.name === proj);
+  const getCurProj = () => curProj;
 
   const getProjectListNames = () => list.map((project) => project.name);
 
@@ -46,8 +49,17 @@ const projectList = (() => {
     addProject(a);
     addProject(b);
   })();
+  const logList = () => console.log(curProj.todos);
 
-  return { addProject, removeProject, getProject, getProjectListNames };
+  return {
+    addProject,
+    removeProject,
+    getProject,
+    getProjectListNames,
+    getCurProj,
+
+    logList,
+  };
 })();
 
 export { Project, projectList };

@@ -31,8 +31,15 @@ body {
 }
 
 header {
-    grid-column: 1 / -1;
     text-align: center;
+}
+
+.side-pannel {
+    grid-row: 1 / -1;
+}
+
+#form-todo-date {
+    grid-column: 3 / 5;
 }
 
 button,
@@ -41,3 +48,25 @@ button,
     cursor: pointer;
 }
 
+#form-todo {
+    position: relative;
+    display:grid;
+    grid-template: repeat(2, min-content) / repeat(4, min-content);
+    justify-content: center;
+    gap: 1rem;
+    margin: 5px 0;
+    padding: 1rem;
+}
+
+.form-priority {
+    display:flex;
+}
+
+#form-todo.title-error::after {
+    position: absolute;
+    content: 'Tasks must have a name';
+    top: -50px;
+    left: 1rem;
+    width: 150px;
+    border: 2px solid red;
+}

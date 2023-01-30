@@ -11,10 +11,6 @@ const DOM = (() => {
     header.appendChild(formDiv);
   };
 
-  const closeTodoForm = () => {
-    document.querySelector("#form-todo").remove();
-  };
-
   const priorityStyling = (priority, objPriority) => {
     switch (objPriority) {
       case 1:
