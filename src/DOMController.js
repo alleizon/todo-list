@@ -19,7 +19,7 @@ const DOM = (() => {
     closeBtn.addEventListener("click", Helpers.closeProjectForm);
     const addBtn = document.createElement("button");
     addBtn.textContent = "Add";
-    addBtn.addEventListener("click", Helpers.addProject);
+    addBtn.addEventListener("click", ELS.newProj);
     btnsDiv.append(closeBtn, addBtn);
   };
 
@@ -31,49 +31,12 @@ const DOM = (() => {
     header.appendChild(formDiv);
   };
 
-  const priorityStyling = (priority, objPriority) => {
-    switch (objPriority) {
-      case 1:
-        priority.classList.add("low");
-        break;
-      case 2:
-        priority.classList.add("medium");
-        break;
-      case 3:
-        priority.classList.add("high");
-        break;
-      default:
-        priority.classList.add("none");
-        break;
-    }
-  };
-
-  const renderTodo = (todo) => {
-    const div = document.createElement("div");
-
-    const title = document.createElement("h1");
-    title.textContent = todo.title;
-    const dueDate = document.createElement("p");
-    dueDate.textContent = todo.dueDate;
-    const desc = document.createElement("p");
-    desc.textContent = todo.desc;
-    const priority = document.createElement("button");
-    priorityStyling(priority, todo.priority);
-    const notes = document.createElement("div");
-    // render notes
-    const completed = document.createElement("button");
-    // buton styling
-
-    div.append(title, dueDate, desc, priority, notes, completed);
-    return div;
-  };
-
   const renderInbox = () => {
     removeContent();
     const content = document.querySelector(".content");
-    const proj = projectList.getInbox();
-    proj.todos.forEach((element) => {
-      const div = renderTodo(element);
+    const inbox = projectList.getInbox();
+    inbox.todos.forEach((element) => {
+      const div = Helpers.createDOMTodo(element);
       content.appendChild(div);
     });
   };
@@ -86,6 +49,18 @@ const DOM = (() => {
   const renderWeek = () => {
     removeContent();
     // TODO
+  };
+
+  const renderProject = (e) => {
+    removeContent();
+    const content = document.querySelector(".content");
+    const projectName = e.target.id;
+    const proj = projectList.getProjectByName(projectName);
+    projectList.updateCurrentProject(proj);
+    proj.todos.forEach((element) => {
+      const div = Helpers.createDOMTodo(element);
+      content.appendChild(div);
+    });
   };
 
   const renderProjectsList = () => {
@@ -102,13 +77,12 @@ const DOM = (() => {
 
   // debug
 
-  const log = () => {
-    console.log(projectList.getProjectListNames());
-  };
+  const log = () => {};
   return {
     renderInbox,
     renderToday,
     renderWeek,
+    renderProject,
     renderProjectsList,
     createTodoForm,
     createProjectForm,
@@ -135,7 +109,13 @@ const ELS = (() => {
       .addEventListener("click", DOM.renderWeek);
   };
 
-  return { init };
+  const newProj = () => {
+    Helpers.addProject();
+    const addedProj = document.querySelector(".projects").lastElementChild;
+    addedProj.addEventListener("click", DOM.renderProject);
+  };
+
+  return { init, newProj };
 })();
 
 export { DOM, ELS };

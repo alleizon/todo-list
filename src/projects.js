@@ -28,7 +28,6 @@ const projectList = (() => {
 
   const addProject = (proj) => {
     list.push(proj);
-    console.log(list);
   };
 
   const removeProject = (proj) => {
@@ -40,8 +39,14 @@ const projectList = (() => {
 
   const getProject = (proj) =>
     list.find((el) => el.name.toLowerCase() === proj.name.toLowerCase());
+  const getProjectByName = (projName) =>
+    list.find((el) => projName === el.name);
   const getInbox = () => inbox;
   const getProjectListNames = () => list.map((project) => project.name);
+  const getCurrentProject = () => curProj;
+  const updateCurrentProject = (proj) => {
+    curProj = proj;
+  };
 
   // debug
   const addInboxTodos = (() => {
@@ -69,7 +74,10 @@ const projectList = (() => {
     addProject,
     removeProject,
     getProject,
+    getProjectByName,
     getProjectListNames,
+    getCurrentProject,
+    updateCurrentProject,
     getInbox,
 
     logList,

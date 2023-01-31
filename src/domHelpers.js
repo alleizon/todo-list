@@ -3,6 +3,43 @@ import Todo from "./todo";
 import { Project, projectList } from "./projects";
 
 const Helpers = (() => {
+  const createDOMTodo = (todo) => {
+    const priorityStyling = (priority, objPriority) => {
+      switch (objPriority) {
+        case 1:
+          priority.classList.add("low");
+          break;
+        case 2:
+          priority.classList.add("medium");
+          break;
+        case 3:
+          priority.classList.add("high");
+          break;
+        default:
+          priority.classList.add("none");
+          break;
+      }
+    };
+
+    const div = document.createElement("div");
+
+    const title = document.createElement("h1");
+    title.textContent = todo.title;
+    const dueDate = document.createElement("p");
+    dueDate.textContent = todo.dueDate;
+    const desc = document.createElement("p");
+    desc.textContent = todo.desc;
+    const priority = document.createElement("button");
+    priorityStyling(priority, todo.priority);
+    const notes = document.createElement("div");
+    // render notes
+    const completed = document.createElement("button");
+    // buton styling
+
+    div.append(title, dueDate, desc, priority, notes, completed);
+    return div;
+  };
+
   const closeTodoForm = () => document.querySelector("#form-todo").remove();
 
   const closeProjectForm = () => {
@@ -60,7 +97,11 @@ const Helpers = (() => {
   const createTodo = (info) => {
     const [title, project, date, desc, priority] = info;
     const todo = new Todo(title, desc, date, priority);
-    projectList.getProject(project).addTodo(todo);
+    projectList.getProjectByName(project).addTodo(todo);
+    if (projectList.getCurrentProject().name === project) {
+      const div = createDOMTodo(todo);
+      document.querySelector(".content").appendChild(div);
+    }
   };
 
   const getFormInfo = () => {
@@ -177,7 +218,7 @@ const Helpers = (() => {
     return formDiv;
   };
 
-  return { createTodoForm, addProject, closeProjectForm };
+  return { createTodoForm, addProject, closeProjectForm, createDOMTodo };
 })();
 
 export default Helpers;
