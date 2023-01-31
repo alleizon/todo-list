@@ -10,21 +10,27 @@
 </head>
 <body>
     <header>
-        <button type="button" id="add-todo">Add task +</button>
+        <button type="button" id="add-todo">New task +</button>
     </header>
     <div class="side-pannel">
         <ul class="inbox">
-            <li>Inbox</li>
-            <li>Today</li>
-            <li>This week</li>
+            <li id="inbox-link">Inbox</li>
+            <li id="today-link">Today</li>
+            <li id="week-link">This week</li>
         </ul>
         <ul class="projects">
-            <li>Proj 1</li>
-            <li>Proj 2</li>
-            <li>Proj 3</li>
-            <li>Proj 4</li>
-            <li>Proj 5</li>
+            <li>Projects</li>
         </ul>
+        <div class="add-project">
+            <li>New Project</li>
+            <button type="button" id="add-project">&plus;</button>
+        </div>
+        <div class="form-project">
+            <input type="text" name="new-project" id="new-project">
+            <div class="proj-form-btns">
+                
+            </div>
+        </div>
     </div>
     <div class="content">
     </div>

@@ -1,11 +1,59 @@
 import { format } from "date-fns";
 import Todo from "./todo";
-import { projectList } from "./projects";
+import { Project, projectList } from "./projects";
 
 const Helpers = (() => {
   const closeTodoForm = () => document.querySelector("#form-todo").remove();
 
-  const requireTitle = () => {
+  const closeProjectForm = () => {
+    document.querySelector("#new-project").classList.remove("active");
+    while (document.querySelector(".proj-form-btns").firstElementChild) {
+      document.querySelector(".proj-form-btns").firstElementChild.remove();
+    }
+    document.querySelector("#new-project").value = "";
+    const error = document.querySelector(".form-project #project-error");
+    if (error) error.remove();
+  };
+
+  const requireProjectTitle = (code) => {
+    const curError = document.querySelector("#project-error");
+    if (curError) {
+      const currentErrorCode = curError.dataset.err;
+      if (+currentErrorCode !== code) curError.remove();
+      else return;
+    }
+    const projForm = document.querySelector(".form-project");
+    const error = document.createElement("p");
+    error.dataset.err = code;
+    projForm.appendChild(error);
+    error.id = "project-error";
+    error.textContent = code
+      ? "A project with this name already exists"
+      : "Project must have a title";
+  };
+
+  const addProject = () => {
+    const projInput = document.querySelector("#new-project");
+    const newProj = new Project(projInput.value);
+    if (projectList.getProject(newProj)) {
+      requireProjectTitle(1);
+      return;
+    }
+    if (!newProj.name) {
+      requireProjectTitle(0);
+      return;
+    }
+    projectList.addProject(newProj);
+
+    const li = document.createElement("li");
+    li.textContent = newProj.name;
+    li.id = newProj.name;
+    document.querySelector(".projects").appendChild(li);
+    projInput.value = "";
+    closeProjectForm();
+  };
+
+  const requireTodoTitle = () => {
     document.querySelector("#form-todo").classList.add("title-error");
   };
 
@@ -18,7 +66,7 @@ const Helpers = (() => {
   const getFormInfo = () => {
     const { children } = document.querySelector("#form-todo");
     if (!children.item(0).value) {
-      requireTitle();
+      requireTodoTitle();
       return;
     }
     const info = [];
@@ -129,7 +177,7 @@ const Helpers = (() => {
     return formDiv;
   };
 
-  return { createTodoForm };
+  return { createTodoForm, addProject, closeProjectForm };
 })();
 
 export default Helpers;

@@ -3,4 +3,4 @@ import { Project, projectList } from "./projects";
 import { DOM, ELS } from "./DOMController";
 
 ELS.init();
-DOM.log();
+DOM.renderInbox();

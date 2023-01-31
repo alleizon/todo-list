@@ -4,8 +4,28 @@ import { Project, projectList } from "./projects";
 import Helpers from "./domHelpers";
 
 const DOM = (() => {
+  const removeContent = () => {
+    const content = document.querySelector(".content");
+    while (content.firstElementChild) content.firstElementChild.remove();
+  };
+
+  const createProjectForm = () => {
+    if (document.querySelector("#new-project").classList.contains("active"))
+      return;
+    const btnsDiv = document.querySelector(".proj-form-btns");
+    document.querySelector("#new-project").classList.add("active");
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "Close";
+    closeBtn.addEventListener("click", Helpers.closeProjectForm);
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "Add";
+    addBtn.addEventListener("click", Helpers.addProject);
+    btnsDiv.append(closeBtn, addBtn);
+  };
+
   const createTodoForm = () => {
     const header = document.querySelector("header");
+    if (document.querySelector("#form-todo")) return;
     const formDiv = Helpers.createTodoForm();
     formDiv.id = "form-todo";
     header.appendChild(formDiv);
@@ -45,27 +65,74 @@ const DOM = (() => {
     // buton styling
 
     div.append(title, dueDate, desc, priority, notes, completed);
+    return div;
   };
 
   const renderInbox = () => {
-    const proj = projectList.getProjectList();
+    removeContent();
+    const content = document.querySelector(".content");
+    const proj = projectList.getInbox();
     proj.todos.forEach((element) => {
-      renderTodo(element);
+      const div = renderTodo(element);
+      content.appendChild(div);
     });
   };
+
+  const renderToday = () => {
+    removeContent();
+    // TODO
+  };
+
+  const renderWeek = () => {
+    removeContent();
+    // TODO
+  };
+
+  const renderProjectsList = () => {
+    const list = projectList.getProjectListNames().slice(1);
+    const projects = document.querySelector(".projects");
+    list.forEach((projName) => {
+      const li = document.createElement("li");
+      li.textContent = projName;
+      li.id = projName;
+      projects.appendChild(li);
+    });
+  };
+  renderProjectsList();
 
   // debug
 
   const log = () => {
     console.log(projectList.getProjectListNames());
   };
-  return { createTodoForm, log };
+  return {
+    renderInbox,
+    renderToday,
+    renderWeek,
+    renderProjectsList,
+    createTodoForm,
+    createProjectForm,
+    log,
+  };
 })();
 
 const ELS = (() => {
   const init = () => {
-    const todoAddBtn = document.querySelector("#add-todo");
-    todoAddBtn.addEventListener("click", DOM.createTodoForm);
+    document
+      .querySelector("#add-todo")
+      .addEventListener("click", DOM.createTodoForm);
+    document
+      .querySelector("button#add-project")
+      .addEventListener("click", DOM.createProjectForm);
+    document
+      .querySelector(".side-pannel .inbox #inbox-link")
+      .addEventListener("click", DOM.renderInbox);
+    document
+      .querySelector(".side-pannel .inbox #today-link")
+      .addEventListener("click", DOM.renderToday);
+    document
+      .querySelector(".side-pannel .inbox #week-link")
+      .addEventListener("click", DOM.renderWeek);
   };
 
   return { init };

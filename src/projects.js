@@ -1,3 +1,6 @@
+// DELETE THIS
+import Todo from "./todo";
+
 class Project {
   todos = [];
 
@@ -24,10 +27,8 @@ const projectList = (() => {
   list.push(inbox);
 
   const addProject = (proj) => {
-    if (list.some((e) => e.name.toLowerCase() === proj.name.toLowerCase()))
-      return; // put in DOM
-
     list.push(proj);
+    console.log(list);
   };
 
   const removeProject = (proj) => {
@@ -37,18 +38,31 @@ const projectList = (() => {
     }
   };
 
-  const getProject = (proj) => list.find((el) => el.name === proj);
-  const getCurProj = () => curProj;
-
+  const getProject = (proj) =>
+    list.find((el) => el.name.toLowerCase() === proj.name.toLowerCase());
+  const getInbox = () => inbox;
   const getProjectListNames = () => list.map((project) => project.name);
 
   // debug
-  const addProjx = (() => {
-    const a = new Project("a");
-    const b = new Project("b");
-    addProject(a);
-    addProject(b);
+  const addInboxTodos = (() => {
+    const todo1 = new Todo("test1", "", "2023-01-15", 1);
+    const todo2 = new Todo("test2", "", "", 0);
+    const todo3 = new Todo("test3", "", "2023-01-312", 2);
+    inbox.addTodo(todo1);
+    inbox.addTodo(todo2);
+    inbox.addTodo(todo3);
+    console.log(inbox.todos);
   })();
+
+  (() => {
+    const proj1 = new Project("proj1");
+    const proj2 = new Project("Proj2");
+    const proj3 = new Project("proj3");
+    addProject(proj1);
+    addProject(proj2);
+    addProject(proj3);
+  })();
+
   const logList = () => console.log(curProj.todos);
 
   return {
@@ -56,7 +70,7 @@ const projectList = (() => {
     removeProject,
     getProject,
     getProjectListNames,
-    getCurProj,
+    getInbox,
 
     logList,
   };
