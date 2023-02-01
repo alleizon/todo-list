@@ -44,7 +44,7 @@ header {
 
 button,
 .side-pannel .inbox > li,
-.side-pannel .projects > li:nth-child(n+2) {
+.side-pannel .projects > div > li {
     cursor: pointer;
 }
 
@@ -100,4 +100,9 @@ button,
     justify-content: center;
     margin: 0.5rem 0;
     gap: 20px;
+}
+
+.projects .project {
+    display:flex;
+    justify-content: space-around;
 }
