@@ -3,12 +3,22 @@ import Todo from "./todo";
 import { Project, projectList } from "./projects";
 
 const Helpers = (() => {
+  let curPriority = 0;
+
   const updateDOMIndexes = (index) => {
     const todosArray = Array.from(document.querySelectorAll(".content > div"));
     const arr = todosArray.slice(index);
     for (let i = 0; i < arr.length; i += 1) {
       arr[i].dataset.index -= 1;
     }
+  };
+
+  const completeTodo = (e) => {
+    const todoDiv = e.target.parentElement;
+    const index = +todoDiv.dataset.index;
+    const proj = projectList.getCurrentProject();
+    proj.todos[index].markCompleted();
+    todoDiv.classList.toggle("completed");
   };
 
   const removeDOMTodo = (e) => {
@@ -40,6 +50,7 @@ const Helpers = (() => {
 
     const div = document.createElement("div");
     div.dataset.index = index;
+    if (todo.completed) div.classList.add("completed");
 
     const title = document.createElement("h1");
     title.textContent = todo.title;
@@ -49,19 +60,22 @@ const Helpers = (() => {
     desc.textContent = todo.desc;
     const priority = document.createElement("button");
     priorityStyling(priority, todo.priority);
-    const notes = document.createElement("div");
-    // render notes
     const completed = document.createElement("button");
+    completed.textContent = "complete";
+    completed.addEventListener("click", completeTodo);
     // buton styling
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", removeDOMTodo);
 
-    div.append(title, dueDate, desc, priority, notes, completed, deleteBtn);
+    div.append(title, dueDate, desc, priority, completed, deleteBtn);
     return div;
   };
 
-  const closeTodoForm = () => document.querySelector("#form-todo").remove();
+  const closeTodoForm = () => {
+    curPriority = 0;
+    document.querySelector("#form-todo").remove();
+  };
 
   const closeProjectForm = () => {
     document.querySelector("#new-project").classList.remove("active");
@@ -157,8 +171,7 @@ const Helpers = (() => {
     }
     const btns = Array.from(document.querySelectorAll(".form-priority button"));
     const priority = btns.filter((btn) => btn.classList.contains("selected"));
-    if (priority.length) info.push(+priority[0].dataset.prio);
-    else info.push(0);
+    if (priority.length) info.push(curPriority);
     document.querySelector("#form-todo").classList.remove("title-error");
     createTodo(info);
   };
@@ -232,6 +245,22 @@ const Helpers = (() => {
     };
 
     const createPriority = () => {
+      const selectFormPriority = (e) => {
+        const btn = e.target;
+        const selected = +e.target.dataset.prio;
+        if (curPriority === selected) {
+          btn.classList.remove("selected");
+          curPriority = 0;
+          return;
+        }
+        btn.classList.add("selected");
+        if (curPriority)
+          document
+            .querySelector(`button[data-prio="${curPriority}"]`)
+            .classList.remove("selected");
+        curPriority = selected;
+      };
+
       const div = document.createElement("div");
       div.classList.add("form-priority");
       const label = document.createElement("p");
@@ -247,6 +276,10 @@ const Helpers = (() => {
       high.dataset.prio = "3";
       div.append(label, low, medium, high);
       formDiv.appendChild(div);
+
+      low.addEventListener("click", selectFormPriority);
+      medium.addEventListener("click", selectFormPriority);
+      high.addEventListener("click", selectFormPriority);
     };
 
     createTitle();
