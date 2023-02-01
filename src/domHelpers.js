@@ -3,7 +3,24 @@ import Todo from "./todo";
 import { Project, projectList } from "./projects";
 
 const Helpers = (() => {
-  const createDOMTodo = (todo) => {
+  const updateDOMIndexes = (index) => {
+    const todosArray = Array.from(document.querySelectorAll(".content > div"));
+    const arr = todosArray.slice(index);
+    for (let i = 0; i < arr.length; i += 1) {
+      arr[i].dataset.index -= 1;
+    }
+  };
+
+  const removeDOMTodo = (e) => {
+    const parent = e.target.parentElement;
+    const { index } = parent.dataset;
+    parent.remove();
+    const project = projectList.getCurrentProject();
+    project.removeTodo(project.todos[index]);
+    updateDOMIndexes(+index);
+  };
+
+  const createDOMTodo = (todo, index) => {
     const priorityStyling = (priority, objPriority) => {
       switch (objPriority) {
         case 1:
@@ -22,6 +39,7 @@ const Helpers = (() => {
     };
 
     const div = document.createElement("div");
+    div.dataset.index = index;
 
     const title = document.createElement("h1");
     title.textContent = todo.title;
@@ -35,8 +53,11 @@ const Helpers = (() => {
     // render notes
     const completed = document.createElement("button");
     // buton styling
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", removeDOMTodo);
 
-    div.append(title, dueDate, desc, priority, notes, completed);
+    div.append(title, dueDate, desc, priority, notes, completed, deleteBtn);
     return div;
   };
 
@@ -69,7 +90,24 @@ const Helpers = (() => {
       : "Project must have a title";
   };
 
+  const removeProject = (e) => {
+    const parentDiv = e.target.parentElement.parentElement;
+    const projectName = parentDiv.firstElementChild.id;
+    projectList.removeProject(projectList.getProjectByName(projectName));
+    parentDiv.remove();
+  };
+
   const addProject = () => {
+    const createWrapper = (li) => {
+      const div = document.createElement("div");
+      div.classList.add("project");
+      const btn = document.createElement("button");
+      btn.innerHTML = '<i class="fa-solid fa-ban"></i>';
+      btn.addEventListener("click", removeProject);
+      div.append(li, btn);
+      return div;
+    };
+
     const projInput = document.querySelector("#new-project");
     const newProj = new Project(projInput.value);
     if (projectList.getProject(newProj)) {
@@ -85,7 +123,7 @@ const Helpers = (() => {
     const li = document.createElement("li");
     li.textContent = newProj.name;
     li.id = newProj.name;
-    document.querySelector(".projects").appendChild(li);
+    document.querySelector(".projects").appendChild(createWrapper(li));
     projInput.value = "";
     closeProjectForm();
   };
@@ -99,7 +137,10 @@ const Helpers = (() => {
     const todo = new Todo(title, desc, date, priority);
     projectList.getProjectByName(project).addTodo(todo);
     if (projectList.getCurrentProject().name === project) {
-      const div = createDOMTodo(todo);
+      const index = document.querySelector(".content").lastElementChild
+        ? +document.querySelector(".content").lastElementChild.dataset.index + 1
+        : 0;
+      const div = createDOMTodo(todo, index);
       document.querySelector(".content").appendChild(div);
     }
   };

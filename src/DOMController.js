@@ -35,8 +35,9 @@ const DOM = (() => {
     removeContent();
     const content = document.querySelector(".content");
     const inbox = projectList.getInbox();
-    inbox.todos.forEach((element) => {
-      const div = Helpers.createDOMTodo(element);
+    projectList.updateCurrentProject(inbox);
+    inbox.todos.forEach((element, index) => {
+      const div = Helpers.createDOMTodo(element, index);
       content.appendChild(div);
     });
   };
@@ -57,13 +58,14 @@ const DOM = (() => {
     const projectName = e.target.id;
     const proj = projectList.getProjectByName(projectName);
     projectList.updateCurrentProject(proj);
-    proj.todos.forEach((element) => {
-      const div = Helpers.createDOMTodo(element);
+    proj.todos.forEach((element, index) => {
+      const div = Helpers.createDOMTodo(element, index);
       content.appendChild(div);
     });
   };
 
   const renderProjectsList = () => {
+    // TODO: add initial event listeners for storage
     const list = projectList.getProjectListNames().slice(1);
     const projects = document.querySelector(".projects");
     list.forEach((projName) => {
@@ -111,7 +113,8 @@ const ELS = (() => {
 
   const newProj = () => {
     Helpers.addProject();
-    const addedProj = document.querySelector(".projects").lastElementChild;
+    const addedProj =
+      document.querySelector(".projects").lastElementChild.firstElementChild;
     addedProj.addEventListener("click", DOM.renderProject);
   };
 
