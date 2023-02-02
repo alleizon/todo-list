@@ -1,11 +1,23 @@
-import { format } from "date-fns";
+import { format, compareAsc } from "date-fns";
 import Todo from "./todo";
 import { Project, projectList } from "./projects";
 
 const Helpers = (() => {
   let curPriority = 0;
 
-  const updateDOMIndexes = (index) => {
+  const updateAddDOMIndex = (div, i) => {
+    if (!div.nextSibling) {
+      const { index } = div.dataset;
+      const newIndex = +index + 1;
+      div.dataset.index = newIndex;
+      return;
+    }
+
+    div.dataset.index = +div.dataset.index + 1;
+    updateAddDOMIndex(div.nextSibling, i + 1);
+  };
+
+  const updateRemoveDOMIndex = (index) => {
     const todosArray = Array.from(document.querySelectorAll(".content > div"));
     const arr = todosArray.slice(index);
     for (let i = 0; i < arr.length; i += 1) {
@@ -27,7 +39,7 @@ const Helpers = (() => {
     parent.remove();
     const project = projectList.getCurrentProject();
     project.removeTodo(project.todos[index]);
-    updateDOMIndexes(+index);
+    updateRemoveDOMIndex(+index);
   };
 
   const createDOMTodo = (todo, index) => {
@@ -55,7 +67,7 @@ const Helpers = (() => {
     const title = document.createElement("h1");
     title.textContent = todo.title;
     const dueDate = document.createElement("p");
-    dueDate.textContent = todo.dueDate;
+    dueDate.textContent = format(todo.dueDate, "dd/MM/yyyy");
     const desc = document.createElement("p");
     desc.textContent = todo.desc;
     const priority = document.createElement("button");
@@ -147,16 +159,75 @@ const Helpers = (() => {
   };
 
   const createTodo = (info) => {
-    const [title, project, date, desc, priority] = info;
-    const todo = new Todo(title, desc, date, priority);
-    projectList.getProjectByName(project).addTodo(todo);
-    if (projectList.getCurrentProject().name === project) {
+    const appendToCurrentPage = (todo) => {
       const index = document.querySelector(".content").lastElementChild
         ? +document.querySelector(".content").lastElementChild.dataset.index + 1
         : 0;
       const div = createDOMTodo(todo, index);
       document.querySelector(".content").appendChild(div);
+    };
+
+    const checkTodayTodo = (date) => {
+      const todayD = new Date();
+      const [day, month, year] = [
+        todayD.getDate(),
+        todayD.getMonth(),
+        todayD.getFullYear(),
+      ];
+      return !!(
+        day === date.getDate() &&
+        month === date.getMonth() &&
+        year === date.getFullYear()
+      );
+    };
+
+    const checkWeekTodo = (date) => {
+      const todayD = new Date();
+      todayD.setHours(0);
+      todayD.setMinutes(0);
+      todayD.setSeconds(0);
+      const nextWeek = new Date(todayD);
+      nextWeek.setDate(todayD.getDate() + 7);
+      nextWeek.setHours(23);
+      nextWeek.setMinutes(59);
+      nextWeek.setSeconds(59);
+
+      return !!(
+        date.getTime() > todayD.getTime() && date.getTime() < nextWeek.getTime()
+      );
+    };
+
+    const [title, project, date, desc, priority] = info;
+    const todo = new Todo(title, desc, date, priority);
+    projectList.getProjectByName(project).addTodo(todo);
+    if (projectList.getCurrentProject().name === project)
+      appendToCurrentPage(todo);
+    if (
+      projectList.getCurrentProject().name === "Today" &&
+      checkTodayTodo(date)
+    )
+      appendToCurrentPage(todo);
+    if (
+      projectList.getCurrentProject().name === "This week" &&
+      checkWeekTodo(date)
+    ) {
+      const weekTodos = projectList.getWeekTodos();
+      weekTodos.push(todo);
+      weekTodos.sort((a, b) => compareAsc(a.dueDate, b.dueDate));
+      const index = weekTodos.findIndex((el) => el === todo);
+      console.log(index);
+      if (!document.querySelector(`[data-index="${index}"]`)) {
+        appendToCurrentPage(todo);
+        closeTodoForm();
+        return;
+      }
+      const curDiv = document.querySelector(`[data-index="${index}"]`);
+      const divToInsert = createDOMTodo(todo, index);
+      curDiv.insertAdjacentElement("beforebegin", divToInsert);
+      updateAddDOMIndex(curDiv, index);
     }
+
+    closeTodoForm();
   };
 
   const getFormInfo = () => {
@@ -169,6 +240,7 @@ const Helpers = (() => {
     for (let i = 0; i < 4; i += 1) {
       info.push(children.item(i).value);
     }
+    info[2] = new Date(info[2]);
     const btns = Array.from(document.querySelectorAll(".form-priority button"));
     const priority = btns.filter((btn) => btn.classList.contains("selected"));
     if (priority.length) info.push(curPriority);

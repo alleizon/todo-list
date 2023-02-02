@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { compareAsc } from "date-fns";
 import Todo from "./todo";
 import { Project, projectList } from "./projects";
 import Helpers from "./domHelpers";
@@ -44,12 +44,25 @@ const DOM = (() => {
 
   const renderToday = () => {
     removeContent();
-    // TODO
+    projectList.updateCurrentProject("today");
+    const todos = projectList.getTodayTodos();
+    if (todos.length) {
+      todos.forEach((todo, index) => {
+        const div = Helpers.createDOMTodo(todo, index);
+        document.querySelector(".content").appendChild(div);
+      });
+    }
   };
 
   const renderWeek = () => {
     removeContent();
-    // TODO
+    projectList.updateCurrentProject("week");
+    const todos = projectList.getWeekTodos();
+    todos.sort((a, b) => compareAsc(a.dueDate, b.dueDate));
+    todos.forEach((todo, index) => {
+      const div = Helpers.createDOMTodo(todo, index);
+      document.querySelector(".content").appendChild(div);
+    });
   };
 
   const renderProject = (e) => {
@@ -115,7 +128,7 @@ const ELS = (() => {
     Helpers.addProject();
     const addedProj =
       document.querySelector(".projects").lastElementChild.firstElementChild;
-    addedProj.addEventListener("click", DOM.renderProject);
+    if (addedProj) addedProj.addEventListener("click", DOM.renderProject);
   };
 
   return { init, newProj };

@@ -23,6 +23,8 @@ class Project {
 const projectList = (() => {
   const list = [];
   const inbox = new Project("Inbox");
+  const today = new Project("Today");
+  const week = new Project("This week");
   let curProj = inbox;
   list.push(inbox);
 
@@ -42,21 +44,67 @@ const projectList = (() => {
   const getProjectByName = (projName) =>
     list.find((el) => projName === el.name);
   const getInbox = () => inbox;
+
+  const getTodayTodos = () => {
+    const todayD = new Date();
+    const [date, month, year] = [
+      todayD.getDate(),
+      todayD.getMonth(),
+      todayD.getFullYear(),
+    ];
+    const todayTodos = [];
+    list.forEach((proj) => {
+      const filtered = proj.todos.filter(
+        (todo) =>
+          todo.dueDate.getDate() === date &&
+          todo.dueDate.getMonth() === month &&
+          todo.dueDate.getFullYear() === year
+      );
+      if (filtered.length) todayTodos.push(filtered);
+    });
+    return todayTodos.flat();
+  };
+
+  const getWeekTodos = () => {
+    const todayD = new Date();
+    todayD.setHours(0);
+    todayD.setMinutes(0);
+    todayD.setSeconds(0);
+    const nextWeek = new Date(todayD);
+    nextWeek.setDate(todayD.getDate() + 7);
+    nextWeek.setHours(23);
+    nextWeek.setMinutes(59);
+    nextWeek.setSeconds(59);
+    const todos = [];
+    list.forEach((proj) => {
+      const filtered = proj.todos.filter(
+        (todo) =>
+          todo.dueDate > todayD.getTime() && todo.dueDate < nextWeek.getTime()
+      );
+      if (filtered.length) todos.push(filtered);
+    });
+    return todos.flat();
+  };
+
   const getProjectListNames = () => list.map((project) => project.name);
   const getCurrentProject = () => curProj;
+
   const updateCurrentProject = (proj) => {
+    if (typeof proj === "string") {
+      curProj = proj === "today" ? today : week;
+      return;
+    }
     curProj = proj;
   };
 
   // debug
   const addInboxTodos = (() => {
-    const todo1 = new Todo("test1", "", "2023-01-15", 1);
-    const todo2 = new Todo("test2", "", "", 0);
-    const todo3 = new Todo("test3", "", "2023-01-312", 2);
+    const todo1 = new Todo("test1", "", new Date(), 1);
+    const todo2 = new Todo("test2", "", new Date(), 0);
+    const todo3 = new Todo("test3", "", new Date(), 2);
     inbox.addTodo(todo1);
     inbox.addTodo(todo2);
     inbox.addTodo(todo3);
-    console.log(inbox.todos);
   })();
 
   (() => {
@@ -68,7 +116,7 @@ const projectList = (() => {
     addProject(proj3);
   })();
 
-  const logList = () => console.log(curProj.todos);
+  const logList = () => console.log(list);
 
   return {
     addProject,
@@ -77,6 +125,8 @@ const projectList = (() => {
     getProjectByName,
     getProjectListNames,
     getCurrentProject,
+    getTodayTodos,
+    getWeekTodos,
     updateCurrentProject,
     getInbox,
 
