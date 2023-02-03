@@ -1,6 +1,5 @@
 import { compareAsc } from "date-fns";
-import Todo from "./todo";
-import { Project, projectList } from "./projects";
+import { projectList } from "./projects";
 import Helpers from "./domHelpers";
 
 const DOM = (() => {
@@ -46,9 +45,14 @@ const DOM = (() => {
     removeContent();
     projectList.updateCurrentProject("today");
     const todos = projectList.getTodayTodos();
-    if (todos.length) {
-      todos.forEach((todo, index) => {
-        const div = Helpers.createDOMTodo(todo, index);
+    const filtered = todos.filter((element) => element.dueDate);
+    if (filtered.length) {
+      filtered.forEach((todo, index) => {
+        const div = Helpers.createDOMTodo(
+          todo,
+          index,
+          Helpers.getProjectFromUnfilteredArray(todo, todos)
+        );
         document.querySelector(".content").appendChild(div);
       });
     }
@@ -58,11 +62,18 @@ const DOM = (() => {
     removeContent();
     projectList.updateCurrentProject("week");
     const todos = projectList.getWeekTodos();
-    todos.sort((a, b) => compareAsc(a.dueDate, b.dueDate));
-    todos.forEach((todo, index) => {
-      const div = Helpers.createDOMTodo(todo, index);
-      document.querySelector(".content").appendChild(div);
-    });
+    const filtered = todos.filter((todo) => todo.dueDate);
+    if (filtered.length) {
+      filtered.sort((a, b) => compareAsc(a.dueDate, b.dueDate));
+      filtered.forEach((todo, index) => {
+        const div = Helpers.createDOMTodo(
+          todo,
+          index,
+          Helpers.getProjectFromUnfilteredArray(todo, todos)
+        );
+        document.querySelector(".content").appendChild(div);
+      });
+    }
   };
 
   const renderProject = (e) => {

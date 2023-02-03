@@ -18,6 +18,10 @@ class Project {
       this.todos.splice(i, 1);
     }
   }
+
+  findTodo(date) {
+    return this.todos.find((todo) => todo.dueDate.getTime() === date.getTime());
+  }
 }
 
 const projectList = (() => {
@@ -60,7 +64,10 @@ const projectList = (() => {
           todo.dueDate.getMonth() === month &&
           todo.dueDate.getFullYear() === year
       );
-      if (filtered.length) todayTodos.push(filtered);
+      if (filtered.length) {
+        filtered.unshift(proj);
+        todayTodos.push(filtered);
+      }
     });
     return todayTodos.flat();
   };
@@ -81,7 +88,10 @@ const projectList = (() => {
         (todo) =>
           todo.dueDate > todayD.getTime() && todo.dueDate < nextWeek.getTime()
       );
-      if (filtered.length) todos.push(filtered);
+      if (filtered.length) {
+        filtered.unshift(proj);
+        todos.push(filtered);
+      }
     });
     return todos.flat();
   };

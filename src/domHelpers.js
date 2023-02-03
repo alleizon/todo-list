@@ -6,14 +6,16 @@ const Helpers = (() => {
   let curPriority = 0;
 
   const updateAddDOMIndex = (div, i) => {
+    const divCopy = div;
+
     if (!div.nextSibling) {
       const { index } = div.dataset;
       const newIndex = +index + 1;
-      div.dataset.index = newIndex;
+      divCopy.dataset.index = newIndex;
       return;
     }
 
-    div.dataset.index = +div.dataset.index + 1;
+    divCopy.dataset.index = +div.dataset.index + 1;
     updateAddDOMIndex(div.nextSibling, i + 1);
   };
 
@@ -25,11 +27,23 @@ const Helpers = (() => {
     }
   };
 
+  const getProjectFromUnfilteredArray = (todo, unfiltered) => {
+    const index = unfiltered.findIndex((element) => element === todo);
+    for (let i = index; i >= 0; i -= 1) {
+      if (unfiltered[i] instanceof Project) return unfiltered[i].name;
+    }
+  };
+
   const completeTodo = (e) => {
     const todoDiv = e.target.parentElement;
     const index = +todoDiv.dataset.index;
-    const proj = projectList.getCurrentProject();
-    proj.todos[index].markCompleted();
+    const curProject = projectList.getCurrentProject();
+    if (curProject.name === "Today" || curProject.name === "This week") {
+      const proj = projectList.getProjectByName(todoDiv.dataset.project);
+      const time = todoDiv.dataset.ts;
+      const date = new Date(+time);
+      proj.findTodo(date).markCompleted();
+    } else curProject.todos[index].markCompleted();
     todoDiv.classList.toggle("completed");
   };
 
@@ -37,12 +51,17 @@ const Helpers = (() => {
     const parent = e.target.parentElement;
     const { index } = parent.dataset;
     parent.remove();
-    const project = projectList.getCurrentProject();
-    project.removeTodo(project.todos[index]);
+    const curProject = projectList.getCurrentProject();
+    if (curProject.name === "Today" || curProject.name === "This week") {
+      const proj = projectList.getProjectByName(parent.dataset.project);
+      const time = parent.dataset.ts;
+      const date = new Date(+time);
+      proj.removeTodo(proj.findTodo(date));
+    } else curProject.removeTodo(curProject.todos[index]);
     updateRemoveDOMIndex(+index);
   };
 
-  const createDOMTodo = (todo, index) => {
+  const createDOMTodo = (todo, index, projName) => {
     const priorityStyling = (priority, objPriority) => {
       switch (objPriority) {
         case 1:
@@ -62,6 +81,10 @@ const Helpers = (() => {
 
     const div = document.createElement("div");
     div.dataset.index = index;
+    if (projName) {
+      div.dataset.project = projName;
+      div.dataset.ts = todo.dueDate.getTime();
+    }
     if (todo.completed) div.classList.add("completed");
 
     const title = document.createElement("h1");
@@ -159,11 +182,11 @@ const Helpers = (() => {
   };
 
   const createTodo = (info) => {
-    const appendToCurrentPage = (todo) => {
+    const appendToCurrentPage = (todo, projName) => {
       const index = document.querySelector(".content").lastElementChild
         ? +document.querySelector(".content").lastElementChild.dataset.index + 1
         : 0;
-      const div = createDOMTodo(todo, index);
+      const div = createDOMTodo(todo, index, projName);
       document.querySelector(".content").appendChild(div);
     };
 
@@ -206,23 +229,22 @@ const Helpers = (() => {
       projectList.getCurrentProject().name === "Today" &&
       checkTodayTodo(date)
     )
-      appendToCurrentPage(todo);
+      appendToCurrentPage(todo, project);
     if (
       projectList.getCurrentProject().name === "This week" &&
       checkWeekTodo(date)
     ) {
       const weekTodos = projectList.getWeekTodos();
-      weekTodos.push(todo);
-      weekTodos.sort((a, b) => compareAsc(a.dueDate, b.dueDate));
-      const index = weekTodos.findIndex((el) => el === todo);
-      console.log(index);
+      const filtered = weekTodos.filter((element) => element.dueDate);
+      filtered.sort((a, b) => compareAsc(a.dueDate, b.dueDate));
+      const index = filtered.findIndex((element) => element === todo);
       if (!document.querySelector(`[data-index="${index}"]`)) {
-        appendToCurrentPage(todo);
+        appendToCurrentPage(todo, project);
         closeTodoForm();
         return;
       }
       const curDiv = document.querySelector(`[data-index="${index}"]`);
-      const divToInsert = createDOMTodo(todo, index);
+      const divToInsert = createDOMTodo(todo, index, project);
       curDiv.insertAdjacentElement("beforebegin", divToInsert);
       updateAddDOMIndex(curDiv, index);
     }
@@ -240,7 +262,16 @@ const Helpers = (() => {
     for (let i = 0; i < 4; i += 1) {
       info.push(children.item(i).value);
     }
-    info[2] = new Date(info[2]);
+    const current = new Date();
+    const [curHours, curMinutes, curSeconds] = [
+      String(current.getHours()).padStart(2, "0"),
+      String(current.getMinutes()).padStart(2, "0"),
+      String(current.getSeconds()).padStart(2, "0"),
+    ];
+    const formDate = new Date(
+      `${info[2]}T${curHours}:${curMinutes}:${curSeconds}`
+    );
+    info[2] = formDate;
     const btns = Array.from(document.querySelectorAll(".form-priority button"));
     const priority = btns.filter((btn) => btn.classList.contains("selected"));
     if (priority.length) info.push(curPriority);
@@ -364,7 +395,13 @@ const Helpers = (() => {
     return formDiv;
   };
 
-  return { createTodoForm, addProject, closeProjectForm, createDOMTodo };
+  return {
+    createTodoForm,
+    addProject,
+    closeProjectForm,
+    createDOMTodo,
+    getProjectFromUnfilteredArray,
+  };
 })();
 
 export default Helpers;
