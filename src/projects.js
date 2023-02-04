@@ -1,6 +1,3 @@
-// DELETE THIS
-import Todo from "./todo";
-
 class Project {
   todos = [];
 
@@ -26,11 +23,9 @@ class Project {
 
 const projectList = (() => {
   const list = [];
-  const inbox = new Project("Inbox");
   const today = new Project("Today");
   const week = new Project("This week");
-  let curProj = inbox;
-  list.push(inbox);
+  let curProj;
 
   const addProject = (proj) => {
     list.push(proj);
@@ -47,7 +42,7 @@ const projectList = (() => {
     list.find((el) => el.name.toLowerCase() === proj.name.toLowerCase());
   const getProjectByName = (projName) =>
     list.find((el) => projName === el.name);
-  const getInbox = () => inbox;
+  const getInbox = () => list[0];
 
   const getTodayTodos = () => {
     const todayD = new Date();
@@ -107,26 +102,17 @@ const projectList = (() => {
     curProj = proj;
   };
 
-  // debug
-  const addInboxTodos = (() => {
-    const todo1 = new Todo("test1", "", new Date(), 1);
-    const todo2 = new Todo("test2", "", new Date(), 0);
-    const todo3 = new Todo("test3", "", new Date(), 2);
-    inbox.addTodo(todo1);
-    inbox.addTodo(todo2);
-    inbox.addTodo(todo3);
-  })();
+  const updateStoredList = (storedList) => {
+    storedList.forEach((proj) => list.push(proj));
+  };
 
-  (() => {
-    const proj1 = new Project("proj1");
-    const proj2 = new Project("Proj2");
-    const proj3 = new Project("proj3");
-    addProject(proj1);
-    addProject(proj2);
-    addProject(proj3);
-  })();
+  const initList = () => {
+    const inbox = new Project("Inbox");
+    curProj = inbox;
+    list.push(inbox);
+  };
 
-  const logList = () => console.log(list);
+  const getList = () => list;
 
   return {
     addProject,
@@ -139,8 +125,9 @@ const projectList = (() => {
     getWeekTodos,
     updateCurrentProject,
     getInbox,
-
-    logList,
+    updateStoredList,
+    initList,
+    getList,
   };
 })();
 

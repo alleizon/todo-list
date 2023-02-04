@@ -1,6 +1,7 @@
 import { compareAsc } from "date-fns";
 import { projectList } from "./projects";
 import Helpers from "./domHelpers";
+import Storage from "./storage";
 
 const DOM = (() => {
   const removeContent = () => {
@@ -89,21 +90,26 @@ const DOM = (() => {
   };
 
   const renderProjectsList = () => {
-    // TODO: add initial event listeners for storage
+    const createWrapper = (li) => {
+      const div = document.createElement("div");
+      div.classList.add("project");
+      const btn = document.createElement("button");
+      btn.innerHTML = '<i class="fa-solid fa-ban"></i>';
+      btn.addEventListener("click", Helpers.removeProject);
+      div.append(li, btn);
+      return div;
+    };
     const list = projectList.getProjectListNames().slice(1);
     const projects = document.querySelector(".projects");
     list.forEach((projName) => {
       const li = document.createElement("li");
       li.textContent = projName;
       li.id = projName;
-      projects.appendChild(li);
+      projects.appendChild(createWrapper(li));
     });
   };
   renderProjectsList();
 
-  // debug
-
-  const log = () => {};
   return {
     renderInbox,
     renderToday,
@@ -112,7 +118,6 @@ const DOM = (() => {
     renderProjectsList,
     createTodoForm,
     createProjectForm,
-    log,
   };
 })();
 
@@ -133,6 +138,20 @@ const ELS = (() => {
     document
       .querySelector(".side-pannel .inbox #week-link")
       .addEventListener("click", DOM.renderWeek);
+
+    const storageList = Storage.getStorageList();
+    if (storageList) {
+      storageList.forEach((proj) => {
+        proj.todos.forEach((todo) => {
+          const cpy = todo;
+          cpy.dueDate = new Date(todo.dueDate);
+        });
+      });
+      projectList.updateStoredList(storageList);
+      if (storageList.length > 1) {
+        DOM.renderProjectsList();
+      }
+    } else projectList.initList();
   };
 
   const newProj = () => {

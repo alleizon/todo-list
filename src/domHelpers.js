@@ -1,6 +1,7 @@
 import { format, compareAsc } from "date-fns";
 import Todo from "./todo";
 import { Project, projectList } from "./projects";
+import Storage from "./storage";
 
 const Helpers = (() => {
   let curPriority = 0;
@@ -45,6 +46,7 @@ const Helpers = (() => {
       proj.findTodo(date).markCompleted();
     } else curProject.todos[index].markCompleted();
     todoDiv.classList.toggle("completed");
+    Storage.storeProjects();
   };
 
   const removeDOMTodo = (e) => {
@@ -59,6 +61,7 @@ const Helpers = (() => {
       proj.removeTodo(proj.findTodo(date));
     } else curProject.removeTodo(curProject.todos[index]);
     updateRemoveDOMIndex(+index);
+    Storage.storeProjects();
   };
 
   const createDOMTodo = (todo, index, projName) => {
@@ -144,6 +147,7 @@ const Helpers = (() => {
     const projectName = parentDiv.firstElementChild.id;
     projectList.removeProject(projectList.getProjectByName(projectName));
     parentDiv.remove();
+    Storage.storeProjects();
   };
 
   const addProject = () => {
@@ -168,6 +172,7 @@ const Helpers = (() => {
       return;
     }
     projectList.addProject(newProj);
+    Storage.storeProjects(newProj);
 
     const li = document.createElement("li");
     li.textContent = newProj.name;
@@ -222,7 +227,9 @@ const Helpers = (() => {
 
     const [title, project, date, desc, priority] = info;
     const todo = new Todo(title, desc, date, priority);
-    projectList.getProjectByName(project).addTodo(todo);
+    const projectObj = projectList.getProjectByName(project);
+    projectObj.addTodo(todo);
+    Storage.storeProjects();
     if (projectList.getCurrentProject().name === project)
       appendToCurrentPage(todo);
     if (
@@ -269,12 +276,13 @@ const Helpers = (() => {
       String(current.getSeconds()).padStart(2, "0"),
     ];
     const formDate = new Date(
-      `${info[2]}T${curHours}:${curMinutes}:${curSeconds}`
+      `${info[2]}T${curHours}:${curMinutes}:${curSeconds}.0000`
     );
     info[2] = formDate;
     const btns = Array.from(document.querySelectorAll(".form-priority button"));
     const priority = btns.filter((btn) => btn.classList.contains("selected"));
     if (priority.length) info.push(curPriority);
+    else info.push(0);
     document.querySelector("#form-todo").classList.remove("title-error");
     createTodo(info);
   };
@@ -398,6 +406,7 @@ const Helpers = (() => {
   return {
     createTodoForm,
     addProject,
+    removeProject,
     closeProjectForm,
     createDOMTodo,
     getProjectFromUnfilteredArray,
