@@ -7,6 +7,7 @@ const DOM = (() => {
   const removeContent = () => {
     const content = document.querySelector(".content");
     while (content.firstElementChild) content.firstElementChild.remove();
+    document.querySelector("header").classList.remove("expanded");
   };
 
   const createProjectForm = () => {
@@ -29,10 +30,15 @@ const DOM = (() => {
     const formDiv = Helpers.createTodoForm();
     formDiv.id = "form-todo";
     header.appendChild(formDiv);
+    header.classList.add("expand");
+    setTimeout(() => {
+      formDiv.classList.add("active");
+    }, 100);
   };
 
   const renderInbox = () => {
     removeContent();
+    Helpers.closeTodoForm();
     const content = document.querySelector(".content");
     const inbox = projectList.getInbox();
     projectList.updateCurrentProject(inbox);
@@ -44,6 +50,7 @@ const DOM = (() => {
 
   const renderToday = () => {
     removeContent();
+    Helpers.closeTodoForm();
     projectList.updateCurrentProject("today");
     const todos = projectList.getTodayTodos();
     const filtered = todos.filter((element) => element.dueDate);
@@ -61,6 +68,7 @@ const DOM = (() => {
 
   const renderWeek = () => {
     removeContent();
+    Helpers.closeTodoForm();
     projectList.updateCurrentProject("week");
     const todos = projectList.getWeekTodos();
     const filtered = todos.filter((todo) => todo.dueDate);
@@ -79,6 +87,7 @@ const DOM = (() => {
 
   const renderProject = (e) => {
     removeContent();
+    Helpers.closeTodoForm();
     const content = document.querySelector(".content");
     const projectName = e.target.id;
     const proj = projectList.getProjectByName(projectName);
@@ -106,6 +115,7 @@ const DOM = (() => {
       li.textContent = projName;
       li.id = projName;
       projects.appendChild(createWrapper(li));
+      ELS.addLocalStorageProject(li);
     });
   };
   renderProjectsList();
@@ -154,6 +164,10 @@ const ELS = (() => {
     } else projectList.initList();
   };
 
+  const addLocalStorageProject = (li) => {
+    li.addEventListener("click", DOM.renderProject);
+  };
+
   const newProj = () => {
     Helpers.addProject();
     const addedProj =
@@ -161,7 +175,7 @@ const ELS = (() => {
     if (addedProj) addedProj.addEventListener("click", DOM.renderProject);
   };
 
-  return { init, newProj };
+  return { init, newProj, addLocalStorageProject };
 })();
 
 export { DOM, ELS };

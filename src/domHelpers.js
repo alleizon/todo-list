@@ -111,8 +111,15 @@ const Helpers = (() => {
   };
 
   const closeTodoForm = () => {
-    curPriority = 0;
-    document.querySelector("#form-todo").remove();
+    const form = document.querySelector("#form-todo");
+    document.querySelector("header").classList.remove("expand");
+    if (form) {
+      form.classList.remove("active");
+      curPriority = 0;
+      setTimeout(() => {
+        document.querySelector("#form-todo").remove();
+      }, 150);
+    }
   };
 
   const closeProjectForm = () => {
@@ -267,7 +274,8 @@ const Helpers = (() => {
     }
     const info = [];
     for (let i = 0; i < 4; i += 1) {
-      info.push(children.item(i).value);
+      if (i === 1) info.push(children.item(i).lastElementChild.value);
+      else info.push(children.item(i).value);
     }
     const current = new Date();
     const [curHours, curMinutes, curSeconds] = [
@@ -278,7 +286,7 @@ const Helpers = (() => {
     const formDate = new Date(
       `${info[2]}T${curHours}:${curMinutes}:${curSeconds}.0000`
     );
-    info[2] = formDate;
+    info[2] = info[2] ? formDate : new Date();
     const btns = Array.from(document.querySelectorAll(".form-priority button"));
     const priority = btns.filter((btn) => btn.classList.contains("selected"));
     if (priority.length) info.push(curPriority);
@@ -327,6 +335,11 @@ const Helpers = (() => {
     };
 
     const createProjectSelect = () => {
+      const div = document.createElement("div");
+
+      const label = document.createElement("label");
+      label.textContent = "Project";
+      label.setAttribute("for", "form-todo-project");
       const select = document.createElement("select");
       select.id = "form-todo-project";
       select.name = "form-todo-project";
@@ -338,19 +351,22 @@ const Helpers = (() => {
         if (proj.value === "Inbox") option.selected = true;
         select.appendChild(option);
       });
-      formDiv.appendChild(select);
+      div.append(label, select);
+      formDiv.appendChild(div);
     };
 
     const cancelBtn = () => {
       const btn = document.createElement("button");
       btn.addEventListener("click", closeTodoForm);
       btn.textContent = "Cancel";
+      btn.id = "todo-cancel";
       formDiv.appendChild(btn);
     };
 
     const createBtn = () => {
       const btn = document.createElement("button");
       btn.addEventListener("click", getFormInfo);
+      btn.id = "todo-create";
       btn.textContent = "Create";
       formDiv.appendChild(btn);
     };
@@ -359,8 +375,10 @@ const Helpers = (() => {
       const selectFormPriority = (e) => {
         const btn = e.target;
         const selected = +e.target.dataset.prio;
+        btn.classList.add(`p${selected}`);
         if (curPriority === selected) {
           btn.classList.remove("selected");
+          btn.classList.remove(`p${curPriority}`);
           curPriority = 0;
           return;
         }
@@ -368,7 +386,7 @@ const Helpers = (() => {
         if (curPriority)
           document
             .querySelector(`button[data-prio="${curPriority}"]`)
-            .classList.remove("selected");
+            .classList.remove("selected", `p${curPriority}`);
         curPriority = selected;
       };
 
@@ -385,7 +403,10 @@ const Helpers = (() => {
       const high = document.createElement("button");
       high.textContent = "High";
       high.dataset.prio = "3";
-      div.append(label, low, medium, high);
+      const btnWrapper = document.createElement("div");
+      btnWrapper.classList.add("priority-buttons");
+      btnWrapper.append(low, medium, high);
+      div.append(label, btnWrapper);
       formDiv.appendChild(div);
 
       low.addEventListener("click", selectFormPriority);
@@ -408,9 +429,18 @@ const Helpers = (() => {
     addProject,
     removeProject,
     closeProjectForm,
+    closeTodoForm,
     createDOMTodo,
     getProjectFromUnfilteredArray,
   };
+})();
+
+const Animations = (() => {
+  const formDropdown = () => {
+    //
+  };
+
+  return { formDropdown };
 })();
 
 export default Helpers;
