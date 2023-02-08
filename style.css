@@ -2,9 +2,9 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-size: 16px;
     --green-color: rgb(73, 223, 73);
-    --yellow-color: rgb(209, 209, 10);
+    --yellow-color: rgb(231, 231, 49);
     --red-color: rgb(199, 41, 41);
-    --blue-bg-color: rgb(90, 167, 255);
+    --bg-color: rgb(22, 22, 22);
 }
 
 * {
@@ -16,11 +16,11 @@
 }
 
 body {
-    padding: 1.5rem 3rem;
     display:grid;
     grid-template-rows: min-content 1fr;
-    grid-template-columns: 1fr 4fr;
-    gap: 2rem;
+    grid-template-columns: minmax(250px, 1fr) 4fr;
+    height: 100vh;
+    overflow-y: scroll;
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -30,6 +30,8 @@ h1,h2,h3,h4,h5,h6 {
 a:visited {
     color: inherit;
 }
+
+/* HEADER */
 
 header {
     text-align: center;
@@ -47,7 +49,7 @@ header > button {
     width: 40px;
     font-size: 2rem;
     color: white;
-    background-color: var(--blue-bg-color);
+    background-color: var(--bg-color);
     box-shadow: 0px 0px 5px black;
     border: none;
     border-radius: 100%;
@@ -60,16 +62,6 @@ header > button:hover {
     scale: 1.1;
     transform: rotate(360deg);
     transition: all 0.2s;
-}
-
-.side-pannel {
-    grid-row: 1 / -1;
-}
-
-button,
-.side-pannel .inbox > li,
-.side-pannel .projects > div > li {
-    cursor: pointer;
 }
 
 #form-todo {
@@ -85,6 +77,7 @@ button,
     border-radius: 10px;
     justify-items: center;
     align-items: end;
+    background-color: #00000021;
     opacity: 0;
     transition: opacity 0.15s ease-out;
     overflow: hidden;
@@ -107,6 +100,7 @@ header.expand {
     border-radius: 5px;
     background-color: rgba(128, 128, 128, 0.26);
     padding: 0px 4px;
+    font-size: 1rem;
 }
 
 #form-todo-title, #form-todo-date {
@@ -126,13 +120,20 @@ header.expand {
 }
 
 select#form-todo-project {
-    width: 100%;
+    outline: none;
+    width: 100px;
     height: 100%;
     padding: 5px;
     text-align: center;
     font-weight: 600;
     border-radius: 5px;
     margin-top: 5px;
+    transition: all 0.2s;
+}
+
+select#form-todo-project:hover {
+    background-color: rgba(0, 0, 0, 0.050);
+    transition: all 0.2s;
 }
 
 #form-todo-desc {
@@ -153,7 +154,7 @@ select#form-todo-project {
 .priority-buttons {
     display:flex;
     justify-content: center;
-    gap: 10px;
+    gap: 1px;
 }
 
 #form-todo button {
@@ -181,19 +182,16 @@ select#form-todo-project {
 
 #todo-create,
 #todo-cancel {
+    background-color: white;
+    border: 2px solid var(--bg-color) !important;
+    color: black;
     width: 150px;
-}
-
-#todo-create {
-    background-color: var(--blue-bg-color);
-    transition: all 0.2s;
 }
 
 #todo-create:hover,
 #todo-cancel:hover {
-    background-color: white;
-    color: var(--blue-bg-color);
-    border: 2px solid var(--blue-bg-color);
+    background-color: var(--bg-color);
+    color: white;
     transition: all 0.2s;
 }
 
@@ -214,6 +212,68 @@ select#form-todo-project {
     justify-content: center;
 }
 
+/* SIDE-PANNEL  */
+
+.side-pannel {
+    grid-row: 1 / -1;
+    background-color: var(--bg-color);
+    color:white;
+    font-weight: 600;
+    padding: 2rem;
+}
+
+.side-pannel > *:not(:last-child):not(.add-project) {
+    position: relative;
+    margin-bottom: 2.5rem;
+}
+
+.side-pannel > *:not(:last-child):not(.add-project)::after {
+    position: absolute;
+    content: '';
+    width: 100%;
+    bottom: -1.25rem;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.514);
+    height: 1px;
+}
+
+.side-pannel > * > * {
+    margin-bottom: 0.5rem;
+}
+
+.side-pannel:last-child {
+    margin-bottom: 0;
+}
+
+button,
+.side-pannel .inbox > li,
+.side-pannel .projects > div > li {
+    cursor: pointer;
+}
+
+ul.inbox li,
+ul.projects > div > li {
+    position: relative;
+    width: fit-content;
+}
+
+ul.inbox li::after,
+ul.projects > div > li::after {
+    position: absolute;
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: -3px;
+    left: 0;
+    background-color: white;
+}
+
+ul.inbox li:hover::after,
+ul.projects > div > li:hover::after {
+    width: 100%;
+    transition: all 0.2s ease-out;
+}
+
 .add-project {
     display:flex;
     gap: 15px;
@@ -224,6 +284,13 @@ select#form-todo-project {
     opacity: 0;
     z-index: -1;
     width: 0;
+    outline: none;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.507);
+    background-color: rgba(0, 0, 0, 0.699);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
 }
 
 #new-project.active {
@@ -247,7 +314,145 @@ select#form-todo-project {
 
 .projects .project {
     display:flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    border-radius: 8px;
+}
+
+div.project > button {
+    border: 1px solid transparent;
+    background-color: transparent;
+    font-size: 1rem;
+    color: white;
+}
+
+div.project > button:hover {
+    scale: 1.2;
+    transition: all 0.2s;
+}
+
+#add-project {
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+#add-project:hover {
+    color: var(--bg-color);
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.form-project .proj-form-btns > button {
+    width: 50px;
+    height: 30px;
+    font-weight: 600;
+    border-radius: 10px;
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    transition: all 0.2s;
+}
+
+.form-project .proj-form-btns > button:hover {
+    background-color: white;
+    color: var(--bg-color);
+    border: 1px solid var(--bg-color);
+    transition: all 0.2s;
+}
+
+/* CONTENT */
+
+.content {
+    padding: 1rem 2rem;
+    display:flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.task {
+    padding: 5px 1rem;
+    border-radius: 10px;
+    background-color: rgba(128, 128, 128, 0.438);
+    display: grid;
+    grid-template: min-content auto / 1fr min-content min-content;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.task:hover {
+    background-color: rgba(61, 61, 61, 0.4);
+}
+
+.task > .task-date {
+    grid-column: 2/4;
+}
+
+.task > .task-desc {
+    overflow-wrap: break-word;
+}
+
+.task > .task-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.task > button {
+    width: 20px;
+    height: 20px;
+    justify-self: center;
+    border: 0px solid transparent;
+    border-radius: 100%;
+    background-color: transparent;
+    font-size: 1.1rem;
+    transition: all 0.1s;
+}
+
+.task > button:hover {
+    scale: 1.1;
+    transition: all 0.1s ease-in-out;
+}
+
+.low {
+    background-color: rgb(73 223 73 / 71%);
+}
+
+.low:hover {
+    background-color: rgb(73 223 73 / 99%);
+}
+
+.medium {
+    background-color: rgb(231 231 49 / 71%);
+}
+
+.medium:hover {
+    background-color: rgb(231 231 49 / 99%);
+}
+
+.high {
+    background-color: rgb(199 41 41 / 70%);
+}
+
+.high:hover {
+    background-color: rgb(199 41 41 / 99%);
+}
+
+.completed {
+    text-decoration: line-through;
+    transition: all 0.2s;
+    box-shadow: none;
+    opacity: 0.5;
+}
+
+.none.completed:hover {
+    background-color: rgba(128, 128, 128, 0.700);
 }
 
 /* ========================= */
