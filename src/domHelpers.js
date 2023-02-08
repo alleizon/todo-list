@@ -36,7 +36,7 @@ const Helpers = (() => {
   };
 
   const completeTodo = (e) => {
-    const todoDiv = e.target.parentElement;
+    const todoDiv = e.currentTarget.parentElement;
     const index = +todoDiv.dataset.index;
     const curProject = projectList.getCurrentProject();
     if (curProject.name === "Today" || curProject.name === "This week") {
@@ -50,7 +50,7 @@ const Helpers = (() => {
   };
 
   const removeDOMTodo = (e) => {
-    const parent = e.target.parentElement;
+    const parent = e.currentTarget.parentElement;
     const { index } = parent.dataset;
     parent.remove();
     const curProject = projectList.getCurrentProject();
@@ -83,7 +83,10 @@ const Helpers = (() => {
     };
 
     const div = document.createElement("div");
+    div.classList.add("task");
+    priorityStyling(div, todo.priority);
     div.dataset.index = index;
+
     if (projName) {
       div.dataset.project = projName;
       div.dataset.ts = todo.dueDate.getTime();
@@ -92,21 +95,27 @@ const Helpers = (() => {
 
     const title = document.createElement("h1");
     title.textContent = todo.title;
+    title.classList.add("task-title");
+
     const dueDate = document.createElement("p");
     dueDate.textContent = format(todo.dueDate, "dd/MM/yyyy");
+    dueDate.classList.add("task-date");
+
     const desc = document.createElement("p");
     desc.textContent = todo.desc;
-    const priority = document.createElement("button");
-    priorityStyling(priority, todo.priority);
-    const completed = document.createElement("button");
-    completed.textContent = "complete";
-    completed.addEventListener("click", completeTodo);
-    // buton styling
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
-    deleteBtn.addEventListener("click", removeDOMTodo);
+    desc.classList.add("task-desc");
 
-    div.append(title, dueDate, desc, priority, completed, deleteBtn);
+    const completeBtn = document.createElement("button");
+    completeBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    completeBtn.addEventListener("click", completeTodo);
+    completeBtn.classList.add("task-complete");
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
+    deleteBtn.addEventListener("click", removeDOMTodo);
+    deleteBtn.classList.add("task-delete");
+
+    div.append(title, dueDate, desc, completeBtn, deleteBtn);
     return div;
   };
 
@@ -433,14 +442,6 @@ const Helpers = (() => {
     createDOMTodo,
     getProjectFromUnfilteredArray,
   };
-})();
-
-const Animations = (() => {
-  const formDropdown = () => {
-    //
-  };
-
-  return { formDropdown };
 })();
 
 export default Helpers;
