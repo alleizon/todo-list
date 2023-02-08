@@ -39,6 +39,7 @@ const DOM = (() => {
   const renderInbox = () => {
     removeContent();
     Helpers.closeTodoForm();
+    document.querySelector("#project-header").textContent = "Inbox";
     const content = document.querySelector(".content");
     const inbox = projectList.getInbox();
     projectList.updateCurrentProject(inbox);
@@ -51,6 +52,7 @@ const DOM = (() => {
   const renderToday = () => {
     removeContent();
     Helpers.closeTodoForm();
+    document.querySelector("#project-header").textContent = "Today";
     projectList.updateCurrentProject("today");
     const todos = projectList.getTodayTodos();
     const filtered = todos.filter((element) => element.dueDate);
@@ -69,6 +71,7 @@ const DOM = (() => {
   const renderWeek = () => {
     removeContent();
     Helpers.closeTodoForm();
+    document.querySelector("#project-header").textContent = "This week";
     projectList.updateCurrentProject("week");
     const todos = projectList.getWeekTodos();
     const filtered = todos.filter((todo) => todo.dueDate);
@@ -91,6 +94,7 @@ const DOM = (() => {
     const content = document.querySelector(".content");
     const projectName = e.target.id;
     const proj = projectList.getProjectByName(projectName);
+    document.querySelector("#project-header").textContent = proj.name;
     projectList.updateCurrentProject(proj);
     proj.todos.forEach((element, index) => {
       const div = Helpers.createDOMTodo(element, index);
