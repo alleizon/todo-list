@@ -45,7 +45,12 @@ header {
     border-bottom: 2px solid black;
 }
 
-header > button {
+header > h1 {
+    text-transform: uppercase;
+    font-size: 1.5rem;
+}
+
+header #add-todo {
     width: 40px;
     font-size: 2rem;
     color: white;
@@ -58,7 +63,7 @@ header > button {
     transition: all 0.2s;
 }
 
-header > button:hover {
+header #add-todo:hover {
     scale: 1.1;
     transform: rotate(360deg);
     transition: all 0.2s;
@@ -220,6 +225,11 @@ select#form-todo-project:hover {
     color:white;
     font-weight: 600;
     padding: 2rem;
+}
+
+.side-pannel > .inbox > li > i,
+.side-pannel > .projects > li:nth-child(1) > i {
+    margin-right: 0.5rem;
 }
 
 .side-pannel > *:not(:last-child):not(.add-project) {
@@ -396,7 +406,7 @@ div.project > button:hover {
 }
 
 .task > .task-desc {
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .task > .task-title {
